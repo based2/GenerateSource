@@ -1,0 +1,13 @@
+
+public class TEST_11_test {
+    
+    public void 11_test()
+    {
+    }
+
+    public String set(int input)
+    {
+        long x = input + 12L;
+        return x;
+    }
+}
