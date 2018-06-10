@@ -1,10 +1,14 @@
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.microsoft.OfficeParser;
-import org.apache.tika.sax.BodyContentHandler;
+import org.apache.tika.sax.ToXMLContentHandler;
+import org.apache.tika.sax.XHTMLContentHandler;
+import org.apache.tika.sax.xpath.Matcher;
+import org.apache.tika.sax.xpath.MatchingContentHandler;
+import org.apache.tika.sax.xpath.XPathParser;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
@@ -22,6 +26,15 @@ import org.apache.logging.log4j.LogManager;
 // https://stackoverflow.com/questions/10250617/java-apache-poi-can-i-get-clean-text-from-ms-word-doc-files
 // https://stackoverflow.com/questions/6800509/are-there-apis-for-text-analysis-mining-in-java
 // https://github.com/topics/text-analysis?l=java
+// https://www.ibm.com/developerworks/opensource/tutorials/os-apache-tika/index.html
+// https://boilerpipe-web.appspot.com/
+// http://rtw.ml.cmu.edu/rtw/ NELL: Never-Ending Language Learning
+// https://www.hascode.com/2012/12/running-categorized-tests-using-junit-maven-and-annotated-test-suites/
+// https://www.hascode.com/2012/12/content-detection-metadata-and-content-extraction-with-apache-tika/
+// https://stanbol.apache.org/ set of reusable components for semantic content management
+// https://github.com/apache/tika/blob/master/tika-core/src/main/java/org/apache/tika/sax/PhoneExtractingContentHandler.java
+// https://github.com/Axel-Girard/tika_poc
+// https://blog.cloudera.com/blog/2013/07/morphlines-the-easy-way-to-build-and-integrate-etl-apps-for-apache-hadoop/
 public class GenerateSource {
 
     private final static Logger LOGGER = LogManager.getLogger(GenerateSource.class);
@@ -64,10 +77,12 @@ public class GenerateSource {
        final URL url = getClass().getResource(DIR_SOURCE);
         try (final InputStream name = url.openStream();
              final TikaInputStream stream = TikaInputStream.get(name)) {
-            final ContentHandler handler = new BodyContentHandler(); // TODO use ToXMLContentHandler and jsoup
-            new OfficeParser().parse(stream, handler, new Metadata(), new ParseContext());
-            text = handler.toString();
-            handler.
+            //XPathParser xhtmlParser = new XPathParser("xhtml", XHTMLContentHandler.XHTML);
+           // Matcher divContentMatcher = xhtmlParser.parse("/xhtml:html/xhtml:body/xhtml:table/descendant::node()");
+           // ContentHandler xmlhandler = new MatchingContentHandler(new ToXMLContentHandler(), divContentMatcher);
+            ContentHandler xmlhandler = new ToXMLContentHandler();
+            new OfficeParser().parse(stream, xmlhandler, new Metadata(), new ParseContext());
+            text = xmlhandler.toString();
         } catch (IOException | TikaException | SAXException e) {
             e.printStackTrace();
         }
