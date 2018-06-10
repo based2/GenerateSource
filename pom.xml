@@ -286,10 +286,4 @@
 
     </dependencies>
 
-    <!-- https://issues.apache.org/jira/browse/TIKA-1774
-           org.xml.sax.SAXException: Namespace http://www.w3.org/1999/xhtml not declared
-         The incoming SAX events are expected to be well-formed (properly nested, etc.) and valid HTML.
-    -->
-
-
 </project>

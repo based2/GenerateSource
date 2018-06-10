@@ -80,6 +80,10 @@ public class GenerateSource {
             //XPathParser xhtmlParser = new XPathParser("xhtml", XHTMLContentHandler.XHTML);
            // Matcher divContentMatcher = xhtmlParser.parse("/xhtml:html/xhtml:body/xhtml:table/descendant::node()");
            // ContentHandler xmlhandler = new MatchingContentHandler(new ToXMLContentHandler(), divContentMatcher);
+            /* https://issues.apache.org/jira/browse/TIKA-1774
+            org.xml.sax.SAXException: Namespace http://www.w3.org/1999/xhtml not declared
+            The incoming SAX events are expected to be well-formed (properly nested, etc.) and valid HTML.
+            */
             ContentHandler xmlhandler = new ToXMLContentHandler();
             new OfficeParser().parse(stream, xmlhandler, new Metadata(), new ParseContext());
             text = xmlhandler.toString();
