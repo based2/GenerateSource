@@ -9,6 +9,10 @@ import org.apache.tika.sax.XHTMLContentHandler;
 import org.apache.tika.sax.xpath.Matcher;
 import org.apache.tika.sax.xpath.MatchingContentHandler;
 import org.apache.tika.sax.xpath.XPathParser;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
@@ -49,8 +53,8 @@ public class GenerateSource {
 
     private static JavaClassTestWritter javaClassTestWritter  = new JavaClassTestWritter(
             PACKAGE, AUTHOR, date, DIR_TARGET);
-
-   // private List<TestCase> testCases = new ArrayList<>();
+    /** Jsoup HTML parser document */
+    private Document document;
 
     private List<String> previousLines = new ArrayList<>();
     private List<String> previousChapter = new ArrayList<>();
@@ -93,12 +97,49 @@ public class GenerateSource {
 
         LOGGER.debug(text);
 
+        // Parse HTML to testCases
+        document = Jsoup.parse(text);
+        final Elements header1s = document.getElementsByTag("h1");
+        //final Elements tables = document.getElementsByTag("table");
+
+        int testCaseCount = 1;
+        for (Element header1 : header1s) {
+            testCase = new TestCase();
+            line = header1.text();
+            if (isNextTestCaseChapter()) { // testCase.setTitle
+                final Element table = next(header1, "table");
+                testCase.setSteps(
+                        texts(table, "tbody > tr > td:nth-child(1) > p") );
+                testCase.setExpectations(
+                        texts(table,"tbody > tr > td:nth-child(2) > p") );
+            }
+            javaClassTestWritter.write(testCase);
+            testCaseCount++;
+        }
+
         // Split to test cases -> launch javaClassTestWritter.write(testCase);
-        status = Status.START;
+        /*status = Status.START;
         new BufferedReader(new StringReader(text)).lines().forEach(
                 (line) -> processLine(line)
         );
-        addNewTestCase();
+        addNewTestCase();*/
+    }
+
+    private Element next(final Element current, final String tagName) {
+        final Element node = current.nextElementSibling();
+        while (node != null && !node.tagName().equalsIgnoreCase(tagName)) {
+            node = node.nextElementSibling();
+        }
+        return node;
+    }
+
+    private List<String> texts(final Element parent, final String cssSelectors){
+        final List<String> texts = new ArrayList<>();
+        final Elements elements = parent.select(cssSelectors);
+        for (Element element : elements) {
+            texts.add(element.text());
+        }
+        return texts;
     }
 
     private void processLine(final String line){
@@ -119,7 +160,6 @@ public class GenerateSource {
         List<String> numbers = StringExtractor.extractNumbers(line);
         if (numbers.isEmpty()) return false;
         if (isNextChapter(numbers)) {
-            addNewTestCase();
             testCase.setNumber( concat(previousChapter) );
             // extracts title
             int posAfterChapter = line.lastIndexOf( getLatest(previousChapter) );
@@ -146,7 +186,7 @@ public class GenerateSource {
 
     private void addNewTestCase() {
         if (null!=testCase) {
-            testCase.addSteps(steps);
+            testCase.setSteps(steps);
             javaClassTestWritter.write(testCase);
             steps.clear();
             expectations.clear();

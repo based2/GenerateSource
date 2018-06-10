@@ -35,7 +35,7 @@ public class TestCase {
         this.description = description;
     }
 
-    public void addSteps(final List<String> steps) {
+    public void setSteps(final List<String> steps) {
         this.steps = steps;
     }
 
@@ -43,6 +43,11 @@ public class TestCase {
         return steps;
     }
 
+    public List<String> getExpectations() {
+        return expectations;
+    }
 
-
+    public void setExpectations(List<String> expectations) {
+        this.expectations = expectations;
+    }
 }
