@@ -126,7 +126,7 @@ public class GenerateSource {
     }
 
     private Element next(final Element current, final String tagName) {
-        final Element node = current.nextElementSibling();
+        Element node = current.nextElementSibling();
         while (node != null && !node.tagName().equalsIgnoreCase(tagName)) {
             node = node.nextElementSibling();
         }

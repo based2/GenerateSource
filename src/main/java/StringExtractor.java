@@ -9,7 +9,7 @@ public class StringExtractor {
 
     public static List<String> extractNumbers(final String text) {
         final List<String> numbers = new ArrayList<>();
-        Matcher m = PATTERN_NUMBERS.matcher(text);
+        final Matcher m = PATTERN_NUMBERS.matcher(text);
         while (m.find()) {
             numbers.add(m.group());
         }
