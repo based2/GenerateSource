@@ -221,7 +221,7 @@ public class GenerateSource {
     }
 
     private String concat(final List<String> list){
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         for(String item : list){
             sb.append(item);
         }
